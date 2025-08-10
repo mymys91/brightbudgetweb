@@ -1,1 +1,52 @@
-<p>login works!</p>
+<div class="login-container">
+  <div class="login-card">
+    <div class="header">
+      <div class="logo">
+        <mat-icon class="logo-icon">lock</mat-icon>
+      </div>
+      <h1 class="title">Welcome Back</h1>
+      <p class="subtitle">Sign in to continue to your budget</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="Enter your email">
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="loginForm.get('email')?.invalid">
+          {{ getErrorMessage('email') }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Enter your password">
+        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="loginForm.get('password')?.invalid">
+          {{ getErrorMessage('password') }}
+        </mat-error>
+      </mat-form-field>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <mat-icon>error</mat-icon>
+        {{ errorMessage }}
+      </div>
+
+      <button 
+        mat-raised-button 
+        type="submit" 
+        class="submit-button full-width"
+        [disabled]="loginForm.invalid || isLoading"
+        [class.loading]="isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20" class="spinner"></mat-spinner>
+        <span *ngIf="!isLoading">Sign In</span>
+      </button>
+    </form>
+
+    <div class="footer">
+      <p>Don't have an account? <a routerLink="/register" class="register-link">Sign Up</a></p>
+    </div>
+  </div>
+</div>
