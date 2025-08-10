@@ -2,35 +2,365 @@
   <div class="wallet-content">
     <div class="wallet-header">
       <h1>My Wallet</h1>
-      <p>Manage your accounts and balances</p>
+      <p>Manage your accounts, track transactions, and monitor your financial health</p>
     </div>
 
-    <div class="wallet-grid">
-      <mat-card class="wallet-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon class="card-icon">account_balance</mat-icon>
-            Main Account
-          </mat-card-title>
-        </mat-card-header>
+    <!-- Wallet Summary Cards -->
+    <div class="summary-cards" *ngIf="summary">
+      <mat-card class="summary-card total-balance">
         <mat-card-content>
-          <div class="balance-amount">$2,450.75</div>
-          <div class="account-number">****1234</div>
+          <div class="summary-icon">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-label">Total Balance</div>
+            <div class="summary-value">{{ formatCurrency(summary.totalBalance, summary.currency) }}</div>
+          </div>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="wallet-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon class="card-icon">savings</mat-icon>
-            Savings Account
-          </mat-card-title>
-        </mat-card-header>
+      <mat-card class="summary-card total-income">
         <mat-card-content>
-          <div class="balance-amount">$1,250.00</div>
-          <div class="account-number">****5678</div>
+          <div class="summary-icon">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-label">Total Income</div>
+            <div class="summary-value">{{ formatCurrency(summary.totalIncome, summary.currency) }}</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card total-expenses">
+        <mat-card-content>
+          <div class="summary-icon">
+            <mat-icon>trending_down</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-label">Total Expenses</div>
+            <div class="summary-value">{{ formatCurrency(summary.totalExpenses, summary.currency) }}</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card account-count">
+        <mat-card-content>
+          <div class="summary-icon">
+            <mat-icon>account_balance</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-label">Accounts</div>
+            <div class="summary-value">{{ summary.accountCount }}</div>
+          </div>
         </mat-card-content>
       </mat-card>
     </div>
+
+    <!-- Main Content Tabs -->
+    <mat-tab-group class="wallet-tabs">
+      <!-- Accounts Tab -->
+      <mat-tab label="Accounts">
+        <div class="tab-content">
+          <div class="tab-header">
+            <h2>My Accounts</h2>
+            <button mat-raised-button color="primary" (click)="showAddAccount = true">
+              <mat-icon>add</mat-icon>
+              Add Account
+            </button>
+          </div>
+
+          <!-- Add/Edit Account Form -->
+          <mat-expansion-panel *ngIf="showAddAccount" class="form-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ selectedAccount ? 'Edit Account' : 'Add New Account' }}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            
+            <form [formGroup]="accountForm" (ngSubmit)="selectedAccount ? updateAccount() : addAccount()">
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Account Name</mat-label>
+                  <input matInput formControlName="name" placeholder="e.g., Main Checking">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Account Type</mat-label>
+                  <mat-select formControlName="type">
+                    <mat-option value="checking">Checking</mat-option>
+                    <mat-option value="savings">Savings</mat-option>
+                    <mat-option value="credit">Credit</mat-option>
+                    <mat-option value="investment">Investment</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Initial Balance</mat-label>
+                  <input matInput type="number" formControlName="balance" placeholder="0.00">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Currency</mat-label>
+                  <mat-select formControlName="currency">
+                    <mat-option value="USD">USD ($)</mat-option>
+                    <mat-option value="EUR">EUR (€)</mat-option>
+                    <mat-option value="GBP">GBP (£)</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Account Number</mat-label>
+                <input matInput formControlName="accountNumber" placeholder="e.g., ****1234">
+              </mat-form-field>
+
+              <div class="form-actions">
+                <button type="button" mat-button (click)="cancelAccountForm()">Cancel</button>
+                <button type="submit" mat-raised-button color="primary" [disabled]="!isAccountFormValid">
+                  {{ selectedAccount ? 'Update' : 'Create' }} Account
+                </button>
+              </div>
+            </form>
+          </mat-expansion-panel>
+
+          <!-- Accounts Grid -->
+          <div class="accounts-grid" *ngIf="accounts.length > 0; else noAccounts">
+            <mat-card class="account-card" *ngFor="let account of accounts">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon [class]="getAccountIcon(account.type)">{{ getAccountIcon(account.type) }}</mat-icon>
+                  {{ account.name }}
+                </mat-card-title>
+                <mat-card-subtitle>{{ account.type | titlecase }} Account</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="balance-amount">{{ formatCurrency(account.balance, account.currency) }}</div>
+                <div class="account-number">{{ account.accountNumber }}</div>
+                <div class="account-status">
+                  <mat-chip [color]="account.isActive ? 'primary' : 'warn'" selected>
+                    {{ account.isActive ? 'Active' : 'Inactive' }}
+                  </mat-chip>
+                </div>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-button color="primary" (click)="editAccount(account)">
+                  <mat-icon>edit</mat-icon>
+                  Edit
+                </button>
+                <button mat-button color="warn" (click)="deleteAccount(account)">
+                  <mat-icon>delete</mat-icon>
+                  Delete
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+
+          <ng-template #noAccounts>
+            <div class="empty-state">
+              <mat-icon>account_balance</mat-icon>
+              <h3>No accounts yet</h3>
+              <p>Create your first account to get started with managing your finances.</p>
+            </div>
+          </ng-template>
+        </div>
+      </mat-tab>
+
+      <!-- Transactions Tab -->
+      <mat-tab label="Transactions">
+        <div class="tab-content">
+          <div class="tab-header">
+            <h2>Transaction History</h2>
+            <button mat-raised-button color="primary" (click)="showAddTransaction = true">
+              <mat-icon>add</mat-icon>
+              Add Transaction
+            </button>
+          </div>
+
+          <!-- Add Transaction Form -->
+          <mat-expansion-panel *ngIf="showAddTransaction" class="form-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Add New Transaction</mat-panel-title>
+            </mat-expansion-panel-header>
+            
+            <form [formGroup]="transactionForm" (ngSubmit)="addTransaction()">
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Account</mat-label>
+                  <mat-select formControlName="accountId">
+                    <mat-option *ngFor="let account of accounts" [value]="account.id">
+                      {{ account.name }} - {{ formatCurrency(account.balance, account.currency) }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Transaction Type</mat-label>
+                  <mat-select formControlName="type">
+                    <mat-option value="income">Income</mat-option>
+                    <mat-option value="expense">Expense</mat-option>
+                    <mat-option value="transfer">Transfer</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Amount</mat-label>
+                  <input matInput type="number" formControlName="amount" placeholder="0.00" step="0.01">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Date</mat-label>
+                  <input matInput [matDatepicker]="picker" formControlName="date">
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Description</mat-label>
+                  <input matInput formControlName="description" placeholder="e.g., Grocery shopping">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Category</mat-label>
+                  <input matInput formControlName="category" placeholder="e.g., Food & Dining">
+                </mat-form-field>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" mat-button (click)="cancelTransactionForm()">Cancel</button>
+                <button type="submit" mat-raised-button color="primary" [disabled]="!isTransactionFormValid">
+                  Add Transaction
+                </button>
+              </div>
+            </form>
+          </mat-expansion-panel>
+
+          <!-- Transactions Table -->
+          <div class="transactions-container" *ngIf="transactions.length > 0; else noTransactions">
+            <table mat-table [dataSource]="transactions" class="transactions-table">
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>Date</th>
+                <td mat-cell *matCellDef="let transaction">{{ formatDate(transaction.date) }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>Description</th>
+                <td mat-cell *matCellDef="let transaction">{{ transaction.description }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef>Category</th>
+                <td mat-cell *matCellDef="let transaction">
+                  <mat-chip>{{ transaction.category }}</mat-chip>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="amount">
+                <th mat-header-cell *matHeaderCellDef>Amount</th>
+                <td mat-cell *matCellDef="let transaction">
+                  <span [class]="'amount-' + getTransactionColor(transaction.type)">
+                    {{ formatCurrency(transaction.amount, 'USD') }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef>Type</th>
+                <td mat-cell *matCellDef="let transaction">
+                  <mat-chip [color]="getTransactionColor(transaction.type)" selected>
+                    <mat-icon>{{ getTransactionIcon(transaction.type) }}</mat-icon>
+                    {{ transaction.type | titlecase }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="balance">
+                <th mat-header-cell *matHeaderCellDef>Balance After</th>
+                <td mat-cell *matCellDef="let transaction">{{ formatCurrency(transaction.balanceAfter, 'USD') }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+
+          <ng-template #noTransactions>
+            <div class="empty-state">
+              <mat-icon>receipt</mat-icon>
+              <h3>No transactions yet</h3>
+              <p>Add your first transaction to start tracking your spending and income.</p>
+            </div>
+          </ng-template>
+        </div>
+      </mat-tab>
+
+      <!-- Summary Tab -->
+      <mat-tab label="Summary">
+        <div class="tab-content">
+          <div class="tab-header">
+            <h2>Financial Summary</h2>
+          </div>
+
+          <div class="summary-content" *ngIf="summary; else loadingSummary">
+            <mat-card class="summary-detail-card">
+              <mat-card-header>
+                <mat-card-title>Overview</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-list>
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
+                    <div matListItemTitle>Total Net Worth</div>
+                    <div matListItemMeta>{{ formatCurrency(summary.totalBalance, summary.currency) }}</div>
+                  </mat-list-item>
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>trending_up</mat-icon>
+                    <div matListItemTitle>Total Income</div>
+                    <div matListItemMeta>{{ formatCurrency(summary.totalIncome, summary.currency) }}</div>
+                  </mat-list-item>
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>trending_down</mat-icon>
+                    <div matListItemTitle>Total Expenses</div>
+                    <div matListItemMeta>{{ formatCurrency(summary.totalExpenses, summary.currency) }}</div>
+                  </mat-list-item>
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>account_balance</mat-icon>
+                    <div matListItemTitle>Active Accounts</div>
+                    <div matListItemMeta>{{ summary.accountCount }}</div>
+                  </mat-list-item>
+                </mat-list>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="summary-detail-card">
+              <mat-card-header>
+                <mat-card-title>Account Breakdown</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-list>
+                  <mat-list-item *ngFor="let account of accounts">
+                    <mat-icon matListItemIcon>{{ getAccountIcon(account.type) }}</mat-icon>
+                    <div matListItemTitle>{{ account.name }}</div>
+                    <div matListItemMeta>{{ formatCurrency(account.balance, account.currency) }}</div>
+                  </mat-list-item>
+                </mat-list>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <ng-template #loadingSummary>
+            <div class="loading-state">
+              <mat-spinner></mat-spinner>
+              <p>Loading summary...</p>
+            </div>
+          </ng-template>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
 </app-layout>
