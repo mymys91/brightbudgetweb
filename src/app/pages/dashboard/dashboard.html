@@ -1,0 +1,107 @@
+<app-layout>
+  <div class="dashboard-content">
+    <div class="welcome-section">
+      <h1 class="welcome-title">Welcome back, {{ currentUser?.name || 'User' }}!</h1>
+      <p class="welcome-subtitle">Here's an overview of your financial status</p>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Balance Card -->
+      <mat-card class="dashboard-card balance-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">account_balance</mat-icon>
+            Total Balance
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="balance-amount">$2,450.75</div>
+          <div class="balance-change positive">+$125.50 this month</div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Income Card -->
+      <mat-card class="dashboard-card income-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">trending_up</mat-icon>
+            Monthly Income
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="amount">$3,200.00</div>
+          <div class="change positive">+$200.00</div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Expenses Card -->
+      <mat-card class="dashboard-card expenses-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">trending_down</mat-icon>
+            Monthly Expenses
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="amount">$1,875.25</div>
+          <div class="change negative">-$75.25</div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Savings Card -->
+      <mat-card class="dashboard-card savings-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">savings</mat-icon>
+            Savings Goal
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="amount">$1,250.00</div>
+          <div class="progress-text">75% of $5,000 goal</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Recent Transactions -->
+    <mat-card class="dashboard-card transactions-card">
+      <mat-card-header>
+        <mat-card-title>Recent Transactions</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="transaction-item">
+          <div class="transaction-info">
+            <mat-icon class="transaction-icon">shopping_cart</mat-icon>
+            <div>
+              <div class="transaction-name">Grocery Shopping</div>
+              <div class="transaction-date">Today, 2:30 PM</div>
+            </div>
+          </div>
+          <div class="transaction-amount negative">-$85.50</div>
+        </div>
+        
+        <div class="transaction-item">
+          <div class="transaction-info">
+            <mat-icon class="transaction-icon">work</mat-icon>
+            <div>
+              <div class="transaction-name">Salary Deposit</div>
+              <div class="transaction-date">Yesterday, 9:00 AM</div>
+            </div>
+          </div>
+          <div class="transaction-amount positive">+$3,200.00</div>
+        </div>
+        
+        <div class="transaction-item">
+          <div class="transaction-info">
+            <mat-icon class="transaction-icon">local_gas_station</mat-icon>
+            <div>
+              <div class="transaction-name">Gas Station</div>
+              <div class="transaction-date">2 days ago</div>
+            </div>
+          </div>
+          <div class="transaction-amount negative">-$45.00</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</app-layout>

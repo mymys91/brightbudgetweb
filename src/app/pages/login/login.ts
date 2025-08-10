@@ -48,26 +48,22 @@ export class LoginComponent {
     });
   }
 
-  onSubmit() {
-    if (this.loginForm.invalid) return;
+  onSubmit(): void {
+    if (this.loginForm.valid) {
+      this.isLoading = true;
+      this.errorMessage = '';
 
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    const { email, password } = this.loginForm.value;
-
-    this.authService.login({ email, password }).subscribe({
-      next: () => {
-        this.router.navigate(['/wallet']);
-      },
-      error: (err) => {
-        this.errorMessage = err.message || 'Login failed.';
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      }
-    });
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error.message || 'Login failed. Please try again.';
+        }
+      });
+    }
   }
 
   getErrorMessage(field: string): string {

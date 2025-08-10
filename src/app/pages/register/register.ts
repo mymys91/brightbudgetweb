@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../features/auth';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -39,7 +39,7 @@ export class RegisterComponent {
   hidePassword = true;
   hideConfirmPassword = true;
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -48,30 +48,26 @@ export class RegisterComponent {
   }
 
   // Handle form submission
-  onSubmit() {
-    if (this.registerForm.invalid) return;
+  onSubmit(): void {
+    if (this.registerForm.valid) {
+      this.isLoading = true;
+      this.errorMessage = '';
+      this.successMessage = '';
 
-    const { email, password, confirmPassword } = this.registerForm.value;
-
-    if (password !== confirmPassword) {
-      this.errorMessage = 'Passwords do not match.';
-      return;
+      this.authService.register(this.registerForm.value).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.successMessage = 'Registration successful! Redirecting to dashboard...';
+          setTimeout(() => {
+            this.router.navigate(['/dashboard']);
+          }, 1500);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error.message || 'Registration failed. Please try again.';
+        }
+      });
     }
-
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    this.authService.register({email, password}).subscribe({
-      next: () => {
-        this.successMessage = 'Registration successful!';
-        this.registerForm.reset();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.errorMessage = err.error?.message || 'Registration failed.';
-        this.isLoading = false;
-      }
-    });
   }
 
   getErrorMessage(field: string): string {

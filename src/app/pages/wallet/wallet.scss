@@ -1,0 +1,57 @@
+.wallet-content {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.wallet-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #1976d2;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+  }
+}
+
+.wallet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.wallet-card {
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-icon {
+    color: #1976d2;
+    margin-right: 8px;
+  }
+
+  .balance-amount {
+    font-size: 2rem;
+    font-weight: 500;
+    color: #1976d2;
+    margin: 16px 0 8px 0;
+  }
+
+  .account-number {
+    color: #666;
+    font-size: 0.9rem;
+  }
+}

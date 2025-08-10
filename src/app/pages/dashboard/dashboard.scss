@@ -1,0 +1,247 @@
+// Dashboard Theme Colors
+$primary-red: #d32f2f;
+$primary-red-light: #ef5350;
+$primary-red-dark: #b71c1c;
+$accent-rose: #e91e63;
+$accent-rose-light: #f48fb1;
+$accent-rose-dark: #c2185b;
+$background-light: #fafafa;
+$background-dark: #f5f5f5;
+$text-primary: #212121;
+$text-secondary: #757575;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$error-color: #f44336;
+$border-color: #e0e0e0;
+$card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+.dashboard-content {
+  .welcome-section {
+    text-align: center;
+    margin-bottom: 40px;
+
+    .welcome-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.5px;
+
+      @media (max-width: 768px) {
+        font-size: 28px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 24px;
+      }
+    }
+
+    .welcome-subtitle {
+      font-size: 18px;
+      color: $text-secondary;
+      margin: 0;
+      line-height: 1.5;
+
+      @media (max-width: 768px) {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+// Dashboard Grid
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: $card-shadow;
+  transition: all 0.3s ease;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  mat-card-header {
+    padding: 24px 24px 16px 24px;
+
+    @media (max-width: 768px) {
+      padding: 20px 20px 12px 20px;
+    }
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+
+      .card-icon {
+        color: $primary-red;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 0 24px 24px 24px;
+
+    @media (max-width: 768px) {
+      padding: 0 20px 20px 20px;
+    }
+  }
+}
+
+// Card Specific Styles
+.balance-card {
+  .balance-amount {
+    font-size: 36px;
+    font-weight: 700;
+    color: $text-primary;
+    margin-bottom: 8px;
+
+    @media (max-width: 768px) {
+      font-size: 32px;
+    }
+  }
+
+  .balance-change {
+    font-size: 16px;
+    font-weight: 500;
+
+    &.positive {
+      color: $success-color;
+    }
+
+    &.negative {
+      color: $error-color;
+    }
+  }
+}
+
+.income-card, .expenses-card, .savings-card {
+  .amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: $text-primary;
+    margin-bottom: 8px;
+
+    @media (max-width: 768px) {
+      font-size: 24px;
+    }
+  }
+
+  .change {
+    font-size: 16px;
+    font-weight: 500;
+
+    &.positive {
+      color: $success-color;
+    }
+
+    &.negative {
+      color: $error-color;
+    }
+  }
+
+  .progress-text {
+    font-size: 14px;
+    color: $text-secondary;
+  }
+}
+
+// Transactions Card
+.transactions-card {
+  mat-card-header {
+    mat-card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+  }
+
+  .transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .transaction-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .transaction-icon {
+        color: $primary-red;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      .transaction-name {
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 4px;
+      }
+
+      .transaction-date {
+        font-size: 14px;
+        color: $text-secondary;
+      }
+    }
+
+    .transaction-amount {
+      font-weight: 600;
+      font-size: 16px;
+
+      &.positive {
+        color: $success-color;
+      }
+
+      &.negative {
+        color: $error-color;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-card {
+    mat-card-header {
+      padding: 16px 16px 12px 16px;
+    }
+
+    mat-card-content {
+      padding: 0 16px 16px 16px;
+    }
+  }
+}

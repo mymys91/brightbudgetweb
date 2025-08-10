@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { map, catchError, tap, switchMap } from 'rxjs/operators';
+import { ConfigService } from '../../config/config.service';
 import { Router } from '@angular/router';
 
 export interface User {
@@ -29,30 +30,55 @@ export interface RegisterRequest {
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
-  
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
-  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-
-  private readonly API_URL = 'http://localhost:3000/api'; // Adjust this to your backend URL
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'current_user';
+  
+  private currentUserSubject: BehaviorSubject<User | null>;
+  public currentUser$: Observable<User | null>;
+
+  private isAuthenticatedSubject: BehaviorSubject<boolean>;
+  public isAuthenticated$: Observable<boolean>;
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private configService: ConfigService
   ) {
+    this.currentUserSubject = new BehaviorSubject<User | null>(null);
+    this.currentUser$ = this.currentUserSubject.asObservable();
+
+    this.isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+    this.isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
     this.initializeAuth();
   }
 
+  private get API_URL(): string {
+    return this.configService.getApiUrl();
+  }
+
   private initializeAuth(): void {
+    this.cleanupInvalidStorage();
     const token = this.getToken();
     const user = this.getStoredUser();
     
     if (token && user) {
       this.currentUserSubject.next(user);
       this.isAuthenticatedSubject.next(true);
+    }
+  }
+
+  private cleanupInvalidStorage(): void {
+    // Clear any invalid localStorage values
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    const user = localStorage.getItem(this.USER_KEY);
+    
+    if (token === 'undefined' || token === 'null') {
+      localStorage.removeItem(this.TOKEN_KEY);
+    }
+    
+    if (user === 'undefined' || user === 'null') {
+      localStorage.removeItem(this.USER_KEY);
     }
   }
 
@@ -70,7 +96,7 @@ export class AuthService {
       );
   }
 
-  register(userData: RegisterRequest): Observable<User> {
+  register(userData: RegisterRequest): Observable<User> {   
     return this.http.post<AuthResponse>(`${this.API_URL}/auth/register`, userData)
       .pipe(
         tap(response => {
@@ -101,7 +127,11 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token || token === 'undefined' || token === 'null') {
+      return null;
+    }
+    return token;
   }
 
   private setToken(token: string): void {
@@ -118,7 +148,16 @@ export class AuthService {
 
   private getStoredUser(): User | null {
     const userStr = localStorage.getItem(this.USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr || userStr === 'undefined' || userStr === 'null') {
+      return null;
+    }
+    try {
+      return JSON.parse(userStr);
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+      this.clearStoredUser(); // Clear invalid data
+      return null;
+    }
   }
 
   private clearStoredUser(): void {

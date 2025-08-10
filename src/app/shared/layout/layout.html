@@ -1,0 +1,57 @@
+<div class="layout-container">
+  <!-- Navigation Bar -->
+  <mat-toolbar class="nav-toolbar" *ngIf="showNavigation">
+    <div class="nav-left">
+      <div class="logo" (click)="navigateTo('/dashboard')">
+        <mat-icon class="logo-icon">account_balance_wallet</mat-icon>
+        <span class="logo-text">BrightBudget</span>
+      </div>
+    </div>
+
+    <div class="nav-center">
+      <button 
+        mat-button 
+        class="nav-button"
+        routerLink="/dashboard"
+        routerLinkActive="active">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </button>
+      
+      <button 
+        mat-button 
+        class="nav-button"
+        routerLink="/wallet"
+        routerLinkActive="active">
+        <mat-icon>account_balance_wallet</mat-icon>
+        <span>Wallet</span>
+      </button>
+    </div>
+
+    <div class="nav-right">
+      <button 
+        mat-icon-button 
+        [matMenuTriggerFor]="userMenu"
+        class="user-menu-button">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      
+      <mat-menu #userMenu="matMenu" class="user-menu">
+        <div class="user-info">
+          <p class="user-name">{{ currentUser?.name || 'User' }}</p>
+          <p class="user-email">{{ currentUser?.email || 'user@example.com' }}</p>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="signOut()" [disabled]="isLoading">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>{{ isLoading ? 'Signing out...' : 'Sign Out' }}</span>
+        </button>
+      </mat-menu>
+    </div>
+  </mat-toolbar>
+
+  <!-- Content Area -->
+  <div class="content-area">
+    <ng-content></ng-content>
+  </div>
+</div>

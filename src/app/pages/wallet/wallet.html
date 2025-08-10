@@ -1,1 +1,36 @@
-<p>wallet works!</p>
+<app-layout>
+  <div class="wallet-content">
+    <div class="wallet-header">
+      <h1>My Wallet</h1>
+      <p>Manage your accounts and balances</p>
+    </div>
+
+    <div class="wallet-grid">
+      <mat-card class="wallet-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">account_balance</mat-icon>
+            Main Account
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="balance-amount">$2,450.75</div>
+          <div class="account-number">****1234</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="wallet-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">savings</mat-icon>
+            Savings Account
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="balance-amount">$1,250.00</div>
+          <div class="account-number">****5678</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</app-layout>
